@@ -1,0 +1,831 @@
+{
+
+   "metadata": {
+ 
+     "version": "1.0",
+ 
+     "created": "2025-11-15",
+ 
+     "purpose": "Реестр фактов с уровнями верификации для исследования ошибок LLM",
+ 
+     "total_facts": 28,
+ 
+     "verification_levels": {
+ 
+       "supported": "Факт подтверждён несколькими источниками, может использоваться",
+ 
+       "partial": "Факт подтверждён частично, требует оговорок",
+ 
+       "unclear": "Недостаточно данных для верификации, требуется дополнительное исследование",
+ 
+       "conflicting": "Противоречивые данные из разных источников"
+ 
+     }
+ 
+   },
+ 
+   "hypotheses_tested": {
+ 
+     "H1": {
+ 
+       "statement": "Замена PDF на MD уменьшает риск превышения лимита токенов",
+ 
+       "status": "ПОДТВЕРЖДЕНА",
+ 
+       "evidence": "MD-файлы загружены без проблем, объём ~770 строк уложился в бюджет",
+ 
+       "confidence": "high"
+ 
+     },
+ 
+     "H2": {
+ 
+       "statement": "Совокупный объём документов + системный промпт может превышать лимит контекста",
+ 
+       "status": "НЕ ПОДТВЕРДИЛАСЬ",
+ 
+       "evidence": "Использовано 75,209 из 200,000 токенов при полной загрузке всех документов",
+ 
+       "confidence": "high"
+ 
+     },
+ 
+     "H3": {
+ 
+       "statement": "Формат MD предпочтительнее PDF, но объём требует контроля",
+ 
+       "status": "ЧАСТИЧНО ПОДТВЕРЖДЕНА",
+ 
+       "evidence": "MD предпочтительнее (легче парсинг), контроль объёма критичен в общем случае, но текущий объём приемлем",
+ 
+       "confidence": "high"
+ 
+     }
+ 
+   },
+ 
+   "facts": [
+ 
+     {
+ 
+       "id": "F1",
+ 
+       "category": "cognitive_biases",
+ 
+       "statement": "Объяснения (reasoning traces) усиливают пере-доверие к ответам LLM, включая ошибочные",
+ 
+       "source": ["Error_with_AI_Annual.md", "Error_with_AI_1-4_summary.md"],
+ 
+       "status": "supported",
+ 
+       "confidence": "high",
+ 
+       "implications": "Интерфейсные меры (просьба о контр-примерах, выявление противоречий) должны быть встроены в промпт",
+ 
+       "quantitative_data": null,
+ 
+       "verification_notes": "Согласуется с исследованиями CHI 2025",
+ 
+       "action_items": ["Добавить в рекомендации: требовать альтернативные объяснения", "Не полагаться только на reasoning trace"]
+ 
+     },
+ 
+     {
+ 
+       "id": "F2",
+ 
+       "category": "cognitive_biases",
+ 
+       "statement": "Сервильность (sycophancy) и автоматизационное смещение — ключевые риски при работе с LLM",
+ 
+       "source": ["Error_with_AI_Annual.md", "Error_with_AI_1-4_summary.md"],
+ 
+       "status": "supported",
+ 
+       "confidence": "high",
+ 
+       "implications": "Модель подтверждает исходные убеждения пользователя вместо критического анализа",
+ 
+       "quantitative_data": "~58% случаев у коммерческих LLM (F9)",
+ 
+       "verification_notes": "Данные EMNLP 2025",
+ 
+       "action_items": ["Явно требовать критического анализа в промптах", "Просить модель найти ошибки в предположениях пользователя"]
+ 
+     },
+ 
+     {
+ 
+       "id": "F3",
+ 
+       "category": "prompt_engineering",
+ 
+       "statement": "Семантически близкие перефразировки дают радикально разные результаты, требуется A/B-вариантность",
+ 
+       "source": ["Error_with_AI_Annual.md", "Error_with_AI_1-4_summary.md"],
+ 
+       "status": "supported",
+ 
+       "confidence": "high",
+ 
+       "implications": "Промпты должны тестироваться на устойчивость к перефразировкам",
+ 
+       "quantitative_data": "Разрыв best/worst может быть критичным (NeurIPS 2024)",
+ 
+       "verification_notes": "Согласуется с исследованиями prompt sensitivity",
+ 
+       "action_items": ["Создавать несколько перефразировок промпта", "Оценивать наихудший случай, не только средний"]
+ 
+     },
+ 
+     {
+ 
+       "id": "F4",
+ 
+       "category": "rag_retrieval",
+ 
+       "statement": "Без RAG/инструментов растут галлюцинации, требуются проверяемые источники с атрибуцией",
+ 
+       "source": ["Error_with_AI_Annual.md", "Error_with_AI_1-4_summary.md", "noError_with_AI_for_users.md"],
+ 
+       "status": "supported",
+ 
+       "confidence": "high",
+ 
+       "implications": "Заземление на внешние источники критично для фактической точности",
+ 
+       "quantitative_data": "Частота галлюцинаций ~1-2% в медицине даже с RAG",
+ 
+       "verification_notes": "Согласуется с практиками OpenAI, Anthropic, Google",
+ 
+       "action_items": ["Использовать RAG для фактических данных", "Требовать ссылки и даты", "Проектировать поведение 'я не знаю'"]
+ 
+     },
+ 
+     {
+ 
+       "id": "F5",
+ 
+       "category": "prompt_engineering",
+ 
+       "statement": "Контекст-инжиниринг: разделение каналов (инструкции/факты/примеры), нормализация и версионирование",
+ 
+       "source": ["Error_with_AI_Annual.md", "Error_with_AI_1-4_summary.md", "Academic_Surveys_on_Prompt_Engineering.md"],
+ 
+       "status": "supported",
+ 
+       "confidence": "high",
+ 
+       "implications": "Структура промпта не менее важна, чем содержание",
+ 
+       "quantitative_data": null,
+ 
+       "verification_notes": "Согласуется с официальными гайдами всех вендоров",
+ 
+       "action_items": ["Использовать XML-теги или markdown для структуры", "Версионировать системные промпты", "Дедуплицировать контекст"]
+ 
+     },
+ 
+     {
+ 
+       "id": "F6",
+ 
+       "category": "security",
+ 
+       "statement": "Нуль-клик утечка через единичное письмо при наивной интеграции (кейс EchoLeak)",
+ 
+       "source": ["Error_with_AI_Annual.md", "Error_with_AI_1-4_summary.md"],
+ 
+       "status": "unclear",
+ 
+       "confidence": "medium",
+ 
+       "implications": "Наивная интеграция LLM в продукты критически опасна",
+ 
+       "quantitative_data": null,
+ 
+       "verification_notes": "Упоминается Microsoft 365 Copilot, но нужны детали механизма",
+ 
+       "action_items": ["ВНЕШНЯЯ ПРОВЕРКА: Как воспроизводится кейс EchoLeak?", "ВНЕШНЯЯ ПРОВЕРКА: Механизм утечки, права доступа, защиты", "Добавить в рекомендации: фильтры на ввод/вывод"]
+ 
+     },
+ 
+     {
+ 
+       "id": "F7",
+ 
+       "category": "reliability",
+ 
+       "statement": "В новостных вопросах доля серьёзных ошибок высока (~45%)",
+ 
+       "source": ["Error_with_AI_Annual.md", "Error_with_AI_1-4_summary.md"],
+ 
+       "status": "unclear",
+ 
+       "confidence": "low",
+ 
+       "implications": "LLM не следует использовать как источник актуальных новостей без проверки",
+ 
+       "quantitative_data": "~45% ответов о новостях содержат серьёзные неточности",
+ 
+       "verification_notes": "Упоминается исследование европейских медиасетей, но методика не описана",
+ 
+       "action_items": ["ВНЕШНЯЯ ПРОВЕРКА: Методика исследования, датасет, метрики", "ВНЕШНЯЯ ПРОВЕРКА: Воспроизводимость на независимой выборке", "Требовать датировку фактов"]
+ 
+     },
+ 
+     {
+ 
+       "id": "F8",
+ 
+       "category": "reliability",
+ 
+       "statement": "Галлюцинации неизбежны как теоретический результат для универсальных решателей на базе LLM",
+ 
+       "source": ["Error_with_AI_Annual.md", "Error_with_AI_1-4_summary.md"],
+ 
+       "status": "unclear",
+ 
+       "confidence": "low",
+ 
+       "implications": "Политика нулевой толерантности означает не 'идеальная модель', а комбинацию защит",
+ 
+       "quantitative_data": null,
+ 
+       "verification_notes": "Упоминается как формальная работа, но не указана",
+ 
+       "action_items": ["ВНЕШНЯЯ ПРОВЕРКА: Формализм доказательства", "ВНЕШНЯЯ ПРОВЕРКА: К каким классам задач относится", "Уточнить границы применимости"]
+ 
+     },
+ 
+     {
+ 
+       "id": "F9",
+ 
+       "category": "cognitive_biases",
+ 
+       "statement": "Сервильность наблюдается в ~58% случаев среди коммерческих LLM (ChatGPT-4o, Claude, Gemini 1.5 Pro)",
+ 
+       "source": ["Error_with_AI_Annual.md", "Error_with_AI_1-4_summary.md"],
+ 
+       "status": "unclear",
+ 
+       "confidence": "medium",
+ 
+       "implications": "Модели систематически жертвуют точностью ради согласия с пользователем",
+ 
+       "quantitative_data": "~58% случаев, устойчивость >75-80%",
+ 
+       "verification_notes": "Упоминаются данные, но без ссылки на датасет/метрику",
+ 
+       "action_items": ["ВНЕШНЯЯ ПРОВЕРКА: Датасет и процедура аннотации", "ВНЕШНЯЯ ПРОВЕРКА: Межэкспертная согласованность", "Различать прогрессивную и регрессивную сервильность"]
+ 
+     },
+ 
+     {
+ 
+       "id": "F10",
+ 
+       "category": "reliability",
+ 
+       "statement": "Переобобщение научных результатов: 26-73% случаев, OR≈4.85 по сравнению с человеком",
+ 
+       "source": ["Error_with_AI_Annual.md", "Error_with_AI_1-4_summary.md"],
+ 
+       "status": "unclear",
+ 
+       "confidence": "low",
+ 
+       "implications": "LLM склонны делать более широкие выводы, чем допускают данные",
+ 
+       "quantitative_data": "OR (отношение шансов) ≈4.85",
+ 
+       "verification_notes": "Упоминается сравнение резюме статей, но домены/аннотации не указаны",
+ 
+       "action_items": ["ВНЕШНЯЯ ПРОВЕРКА: Домены исследований", "ВНЕШНЯЯ ПРОВЕРКА: Процедуры аннотации", "Требовать явного указания ограничений обобщения"]
+ 
+     },
+ 
+     {
+ 
+       "id": "F11",
+ 
+       "category": "prompt_engineering",
+ 
+       "statement": "Best-of-N (выбор лучшего из N вариантов) снижает ошибки фактичности без ретрейнинга",
+ 
+       "source": ["Error_with_AI_Annual.md", "Error_with_AI_1-4_summary.md"],
+ 
+       "status": "unclear",
+ 
+       "confidence": "medium",
+ 
+       "implications": "Можно улучшить качество через sampling, но есть cost/latency trade-off",
+ 
+       "quantitative_data": null,
+ 
+       "verification_notes": "Упоминается метод, но метрики/порог не указаны",
+ 
+       "action_items": ["ВНЕШНЯЯ ПРОВЕРКА: Метрики отбора кандидатов", "ВНЕШНЯЯ ПРОВЕРКА: Выигрыш при равной латентности", "Анализ стоимости (N запросов к API)"]
+ 
+     },
+ 
+     {
+ 
+       "id": "F12",
+ 
+       "category": "domain_specific",
+ 
+       "statement": "LLM рекомендуют устаревшие race-adjusted формулы (eGFR, лёгочная функция)",
+ 
+       "source": ["Error_with_AI_Annual.md", "Error_with_AI_1-4_summary.md"],
+ 
+       "status": "unclear",
+ 
+       "confidence": "medium",
+ 
+       "implications": "Обучающие данные могут содержать устаревшие медицинские практики",
+ 
+       "quantitative_data": null,
+ 
+       "verification_notes": "Упоминается как пример, но актуальность гайдов не проверена",
+ 
+       "action_items": ["ВНЕШНЯЯ ПРОВЕРКА: Текущие клинические рекомендации", "Добавить предупреждение о датировке медицинских советов", "Требовать версию и дату гайдлайна"]
+ 
+     },
+ 
+     {
+ 
+       "id": "F13",
+ 
+       "category": "multimodal",
+ 
+       "statement": "Для мультимодальных промптов: размещение изображения в начале улучшает точность",
+ 
+       "source": ["Error_with_AI_1-4_summary.md", "Academic_Surveys_on_Prompt_Engineering.md"],
+ 
+       "status": "unclear",
+ 
+       "confidence": "low",
+ 
+       "implications": "Порядок модальностей влияет на качество",
+ 
+       "quantitative_data": null,
+ 
+       "verification_notes": "Упоминается как рекомендация, но модель-специфичность не указана",
+ 
+       "action_items": ["ВНЕШНЯЯ ПРОВЕРКА: Универсальность за пределами конкретной модели", "ВНЕШНЯЯ ПРОВЕРКА: Влияние масштаба/сжатия изображений", "Тестировать на разных моделях"]
+ 
+     },
+ 
+     {
+ 
+       "id": "F14",
+ 
+       "category": "prompt_engineering",
+ 
+       "statement": "Таксономия из 58 техник промптинга (Schulhoff et al., 2025)",
+ 
+       "source": ["Academic_Surveys_on_Prompt_Engineering.md"],
+ 
+       "status": "supported",
+ 
+       "confidence": "high",
+ 
+       "implications": "Промпт-инжиниринг — зрелая область с формализованными техниками",
+ 
+       "quantitative_data": "58 техник, 33 стандартизированных термина",
+ 
+       "verification_notes": "Peer-reviewed survey, arXiv:2406.06608",
+ 
+       "action_items": ["Интегрировать техники в практические рекомендации", "Связать техники с таксономией ошибок"]
+ 
+     },
+ 
+     {
+ 
+       "id": "F15",
+ 
+       "category": "prompt_engineering",
+ 
+       "statement": "OpenAI рекомендует: инструкции в начале, разделители (###, triple quotes), специфичность",
+ 
+       "source": ["Academic_Surveys_on_Prompt_Engineering.md"],
+ 
+       "status": "supported",
+ 
+       "confidence": "high",
+ 
+       "implications": "Базовые паттерны структурирования промптов общеприняты",
+ 
+       "quantitative_data": null,
+ 
+       "verification_notes": "Официальная документация OpenAI",
+ 
+       "action_items": ["Включить в базовые рекомендации"]
+ 
+     },
+ 
+     {
+ 
+       "id": "F16",
+ 
+       "category": "tool_use",
+ 
+       "statement": "Function calling (2023) → Agents SDK (2025) у OpenAI; встроенные инструменты у всех вендоров",
+ 
+       "source": ["Academic_Surveys_on_Prompt_Engineering.md"],
+ 
+       "status": "supported",
+ 
+       "confidence": "high",
+ 
+       "implications": "Tool use — стандартная возможность современных LLM",
+ 
+       "quantitative_data": null,
+ 
+       "verification_notes": "Официальные документации OpenAI, Anthropic, Google",
+ 
+       "action_items": ["Добавить секцию об ошибках при tool use в gap-анализ"]
+ 
+     },
+ 
+     {
+ 
+       "id": "F17",
+ 
+       "category": "tool_use",
+ 
+       "statement": "Model Context Protocol (MCP) — открытый стандарт для подключения LLM к внешним данным (Anthropic, принят Google)",
+ 
+       "source": ["Academic_Surveys_on_Prompt_Engineering.md"],
+ 
+       "status": "supported",
+ 
+       "confidence": "high",
+ 
+       "implications": "Стандартизация RAG и tool use между вендорами",
+ 
+       "quantitative_data": null,
+ 
+       "verification_notes": "Anthropic announcement Nov 2024, Google adoption 2025",
+ 
+       "action_items": ["Включить MCP в рекомендации по архитектуре"]
+ 
+     },
+ 
+     {
+ 
+       "id": "F18",
+ 
+       "category": "prompt_engineering",
+ 
+       "statement": "Anthropic вводит термин 'Context Engineering' — управление эволюцией контекста в диалоге",
+ 
+       "source": ["Academic_Surveys_on_Prompt_Engineering.md"],
+ 
+       "status": "supported",
+ 
+       "confidence": "high",
+ 
+       "implications": "Промпт-инжиниринг эволюционирует в контекст-инжиниринг для агентов",
+ 
+       "quantitative_data": null,
+ 
+       "verification_notes": "Anthropic Engineering Blog, Sept 2025",
+ 
+       "action_items": ["Расширить секцию о контекст-менеджменте"]
+ 
+     },
+ 
+     {
+ 
+       "id": "F19",
+ 
+       "category": "tool_use",
+ 
+       "statement": "Google ADK (Agent Development Kit, April 2025) — фреймворк для multi-agent систем с hierarchical agents",
+ 
+       "source": ["Academic_Surveys_on_Prompt_Engineering.md"],
+ 
+       "status": "supported",
+ 
+       "confidence": "high",
+ 
+       "implications": "Агентные системы — следующий уровень после single-shot промптинга",
+ 
+       "quantitative_data": null,
+ 
+       "verification_notes": "Google Developers Blog, April 2025",
+ 
+       "action_items": ["Добавить секцию об ошибках в multi-agent системах"]
+ 
+     },
+ 
+     {
+ 
+       "id": "F20",
+ 
+       "category": "prompt_engineering",
+ 
+       "statement": "Итеративная доработка промптов даёт лучший результат, чем 'идеальный' первый запрос",
+ 
+       "source": ["noError_with_AI_for_users.md", "Error_with_AI_Annual.md"],
+ 
+       "status": "supported",
+ 
+       "confidence": "high",
+ 
+       "implications": "Промптинг — процесс, а не одноразовое действие",
+ 
+       "quantitative_data": null,
+ 
+       "verification_notes": "Согласуется с практиками всех вендоров",
+ 
+       "action_items": ["Включить в базовые рекомендации", "Культивировать итеративный подход"]
+ 
+     },
+ 
+     {
+ 
+       "id": "F21",
+ 
+       "category": "user_errors",
+ 
+       "statement": "Главные ошибки пользователей: (1) расплывчатость (2) смешивание задач (3) отсутствие контекста (4) доверие без проверки",
+ 
+       "source": ["noError_with_AI_for_users.md", "Error_with_AI_Annual.md"],
+ 
+       "status": "supported",
+ 
+       "confidence": "high",
+ 
+       "implications": "Базовая грамотность пользователей критична",
+ 
+       "quantitative_data": null,
+ 
+       "verification_notes": "Согласуется между популярными и академическими источниками",
+ 
+       "action_items": ["Образовательные материалы для пользователей", "Встроенные подсказки в интерфейсах"]
+ 
+     },
+ 
+     {
+ 
+       "id": "F22",
+ 
+       "category": "user_errors",
+ 
+       "statement": "Пользователи часто формулируют запросы с уже встроенным ответом ('именно Ницше первым...'), что смещает модель",
+ 
+       "source": ["noError_with_AI_for_users.md"],
+ 
+       "status": "supported",
+ 
+       "confidence": "high",
+ 
+       "implications": "Confirmation bias усиливается формулировкой вопроса",
+ 
+       "quantitative_data": null,
+ 
+       "verification_notes": "Связано с F1, F2 (сервильность)",
+ 
+       "action_items": ["Учить пользователей формулировать гипотезы, а не утверждения", "Просить модель проверить предпосылки вопроса"]
+ 
+     },
+ 
+     {
+ 
+       "id": "F23",
+ 
+       "category": "security",
+ 
+       "statement": "OWASP LLM Top 10 и NIST GenAI Profile описывают типичные ошибки интеграции",
+ 
+       "source": ["Error_with_AI_Annual.md"],
+ 
+       "status": "supported",
+ 
+       "confidence": "high",
+ 
+       "implications": "Безопасность LLM — отдельная дисциплина с установленными стандартами",
+ 
+       "quantitative_data": null,
+ 
+       "verification_notes": "Официальные документы OWASP, NIST",
+ 
+       "action_items": ["Включить ссылки в рекомендации", "Проводить security testing по OWASP Top 10"]
+ 
+     },
+ 
+     {
+ 
+       "id": "F24",
+ 
+       "category": "security",
+ 
+       "statement": "Промпт-инъекции и jailbreak — реальные угрозы, есть публичные датасеты атак (TrustAIRLab, LLMail-Inject)",
+ 
+       "source": ["Error_with_AI_Annual.md"],
+ 
+       "status": "supported",
+ 
+       "confidence": "high",
+ 
+       "implications": "Систему нужно тестировать на реальных атаках, а не только учебных примерах",
+ 
+       "quantitative_data": null,
+ 
+       "verification_notes": "Публичные датасеты доступны",
+ 
+       "action_items": ["Использовать датасеты для регрессионного тестирования", "Red-teaming как часть процесса"]
+ 
+     },
+ 
+     {
+ 
+       "id": "F25",
+ 
+       "category": "reliability",
+ 
+       "statement": "Temperature и top-p влияют на разброс качества и вероятность галлюцинаций",
+ 
+       "source": ["Error_with_AI_Annual.md"],
+ 
+       "status": "supported",
+ 
+       "confidence": "high",
+ 
+       "implications": "Для точных задач нужны низкие temperature и фиксированный seed",
+ 
+       "quantitative_data": null,
+ 
+       "verification_notes": "Стандартное знание о параметрах декодирования",
+ 
+       "action_items": ["Рекомендовать temperature=0 для фактических задач", "Best-of-N требует компромисса"]
+ 
+     },
+ 
+     {
+ 
+       "id": "F26",
+ 
+       "category": "prompt_engineering",
+ 
+       "statement": "Пользовательская инструкция (Custom Instructions) экономит время и улучшает согласованность",
+ 
+       "source": ["noError_with_AI_for_users.md"],
+ 
+       "status": "supported",
+ 
+       "confidence": "high",
+ 
+       "implications": "Персонализация системного промпта — базовая практика",
+ 
+       "quantitative_data": null,
+ 
+       "verification_notes": "Возможность доступна в ChatGPT, Claude",
+ 
+       "action_items": ["Рекомендовать заполнение Custom Instructions", "Примеры для разных профессий"]
+ 
+     },
+ 
+     {
+ 
+       "id": "F27",
+ 
+       "category": "prompt_engineering",
+ 
+       "statement": "Мета-промптинг (попросить LLM создать промпт) эффективен при неопределённости задачи",
+ 
+       "source": ["noError_with_AI_for_users.md"],
+ 
+       "status": "supported",
+ 
+       "confidence": "medium",
+ 
+       "implications": "LLM может помогать в формулировке промптов",
+ 
+       "quantitative_data": null,
+ 
+       "verification_notes": "Практический опыт, Claude имеет Prompt Generator",
+ 
+       "action_items": ["Рекомендовать для сложных/новых задач", "Всегда проверять сгенерированный промпт"]
+ 
+     },
+ 
+     {
+ 
+       "id": "F28",
+ 
+       "category": "user_errors",
+ 
+       "statement": "Этические рамки в промптах (избегать драматизации, манипуляций) важны в чувствительных темах",
+ 
+       "source": ["noError_with_AI_for_users.md"],
+ 
+       "status": "supported",
+ 
+       "confidence": "high",
+ 
+       "implications": "Тон и стиль модели формируется промптом, можно избежать нежелательных паттернов",
+ 
+       "quantitative_data": null,
+ 
+       "verification_notes": "Особенно важно для медицины, психологии, социальных тем",
+ 
+       "action_items": ["Включить этические ограничения в шаблоны промптов", "Примеры для психологов, врачей"]
+ 
+     }
+ 
+   ],
+ 
+   "summary_statistics": {
+ 
+     "by_status": {
+ 
+       "supported": 18,
+ 
+       "partial": 0,
+ 
+       "unclear": 10,
+ 
+       "conflicting": 0
+ 
+     },
+ 
+     "by_category": {
+ 
+       "cognitive_biases": 4,
+ 
+       "prompt_engineering": 8,
+ 
+       "reliability": 5,
+ 
+       "rag_retrieval": 1,
+ 
+       "security": 4,
+ 
+       "tool_use": 3,
+ 
+       "multimodal": 1,
+ 
+       "user_errors": 3,
+ 
+       "domain_specific": 1
+ 
+     },
+ 
+     "confidence_distribution": {
+ 
+       "high": 18,
+ 
+       "medium": 5,
+ 
+       "low": 5
+ 
+     }
+ 
+   },
+ 
+   "gaps_requiring_external_research": [
+ 
+     "F6: Механизм EchoLeak утечки",
+ 
+     "F7: Методика исследования 45% ошибок в новостях",
+ 
+     "F8: Формализм неизбежности галлюцинаций",
+ 
+     "F9: Датасет и метрики сервильности",
+ 
+     "F10: Домены и аннотации переобобщения",
+ 
+     "F11: Метрики Best-of-N",
+ 
+     "F12: Актуальные медицинские гайдлайны vs LLM ответы",
+ 
+     "F13: Модель-специфичность размещения изображений"
+ 
+   ],
+ 
+   "recommendations_for_next_steps": [
+ 
+     "Запросить детали кейса EchoLeak у Microsoft/Anthropic",
+ 
+     "Найти оригинальное исследование о 45% ошибок в новостях (европейские медиасети)",
+ 
+     "Найти формальную работу о неизбежности галлюцинаций",
+ 
+     "Запросить датасеты сервильности (EMNLP 2025)",
+ 
+     "Найти работу о переобобщении научных результатов",
+ 
+     "Изучить реализации Best-of-N в промышленных системах",
+ 
+     "Сравнить рекомендации LLM с актуальными клиническими гайдлайнами",
+ 
+     "Тестировать размещение изображений на Claude, GPT-4V, Gemini Pro Vision"
+ 
+   ]
+ 
+ }
