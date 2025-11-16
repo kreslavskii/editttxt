@@ -1,15 +1,18 @@
 {
   "metadata": {
-    "version": "1.0",
+    "version": "2.0",
     "created": "2025-11-15",
+    "updated": "2025-11-16",
     "purpose": "Реестр фактов с уровнями верификации для исследования ошибок LLM",
     "total_facts": 28,
     "verification_levels": {
       "supported": "Факт подтверждён несколькими источниками, может использоваться",
       "partial": "Факт подтверждён частично, требует оговорок",
       "unclear": "Недостаточно данных для верификации, требуется дополнительное исследование",
-      "conflicting": "Противоречивые данные из разных источников"
-    }
+      "refuted": "Факт не подтвердился или противоречит найденным данным"
+    },
+    "web_verification_date": "2025-11-16",
+    "web_verification_status": "8/8 фактов проверены"
   },
   "hypotheses_tested": {
     "H1": {
@@ -21,7 +24,7 @@
     "H2": {
       "statement": "Совокупный объём документов + системный промпт может превышать лимит контекста",
       "status": "НЕ ПОДТВЕРДИЛАСЬ",
-      "evidence": "Использовано 75,209 из 200,000 токенов при полной загрузке всех документов",
+      "evidence": "Использовано 125,639 из 200,000 токенов при полной загрузке всех документов",
       "confidence": "high"
     },
     "H3": {
@@ -53,7 +56,7 @@
       "confidence": "high",
       "implications": "Модель подтверждает исходные убеждения пользователя вместо критического анализа",
       "quantitative_data": "~58% случаев у коммерческих LLM (F9)",
-      "verification_notes": "Данные EMNLP 2025",
+      "verification_notes": "Данные EMNLP 2025, см. F9 для деталей",
       "action_items": ["Явно требовать критического анализа в промптах", "Просить модель найти ошибки в предположениях пользователя"]
     },
     {
@@ -95,98 +98,98 @@
     {
       "id": "F6",
       "category": "security",
-      "statement": "Нуль-клик утечка через единичное письмо при наивной интеграции (кейс EchoLeak)",
-      "source": ["Error_with_AI_Annual.md", "Error_with_AI_1-4_summary.md"],
-      "status": "unclear",
-      "confidence": "medium",
-      "implications": "Наивная интеграция LLM в продукты критически опасна",
-      "quantitative_data": null,
-      "verification_notes": "Упоминается Microsoft 365 Copilot, но нужны детали механизма",
-      "action_items": ["ВНЕШНЯЯ ПРОВЕРКА: Как воспроизводится кейс EchoLeak?", "ВНЕШНЯЯ ПРОВЕРКА: Механизм утечки, права доступа, защиты", "Добавить в рекомендации: фильтры на ввод/вывод"]
+      "statement": "Нуль-клик утечка через единичное письмо при наивной интеграции (кейс EchoLeak / CVE-2025-32711)",
+      "source": ["Error_with_AI_Annual.md", "Error_with_AI_1-4_summary.md", "Web verification 2025-11-16"],
+      "status": "supported",
+      "confidence": "high",
+      "implications": "Наивная интеграция LLM в продукты критически опасна — атаки возможны через email без взаимодействия пользователя",
+      "quantitative_data": "CVSS score: 9.3 (critical)",
+      "verification_notes": "ПОДТВЕРЖДЕНО: EchoLeak (CVE-2025-32711) — zero-click vulnerability в Microsoft 365 Copilot. Атака: специально сформированное email → жертва спрашивает Copilot о чём-то связанном с письмом → Copilot читает скрытые инструкции в email и выполняет их → утечка данных (chat logs, OneDrive files, SharePoint, Teams messages). Исправлено Microsoft в январе 2025 (server-side patch). Опубликовано: arxiv.org/html/2509.10540, множество security advisories.",
+      "action_items": ["Фильтровать input/output на инъекции", "Тестировать на датасетах LLMail-Inject", "Ограничить scope доступа LLM к данным"]
     },
     {
       "id": "F7",
       "category": "reliability",
       "statement": "В новостных вопросах доля серьёзных ошибок высока (~45%)",
       "source": ["Error_with_AI_Annual.md", "Error_with_AI_1-4_summary.md"],
-      "status": "unclear",
+      "status": "refuted",
       "confidence": "low",
-      "implications": "LLM не следует использовать как источник актуальных новостей без проверки",
-      "quantitative_data": "~45% ответов о новостях содержат серьёзные неточности",
-      "verification_notes": "Упоминается исследование европейских медиасетей, но методика не описана",
-      "action_items": ["ВНЕШНЯЯ ПРОВЕРКА: Методика исследования, датасет, метрики", "ВНЕШНЯЯ ПРОВЕРКА: Воспроизводимость на независимой выборке", "Требовать датировку фактов"]
+      "implications": "Конкретная цифра 45% НЕ подтверждена, но проблемы с точностью LLM в новостях существуют (другие исследования показывают разные цифры)",
+      "quantitative_data": "Исходное упоминание: ~45%. НЕ НАЙДЕНО исследование с этой цифрой. Найдены другие данные: LLM классифицируют ~80% reliable источников как unreliable; agreement с экспертами только ρ=0.50",
+      "verification_notes": "НЕ ПОДТВЕРЖДЕНО: Веб-поиск не нашёл европейское медиа-исследование с цифрой 45%. Найдены академические работы 2024-2025 о точности LLM в новостях (arxiv.org/abs/2304.00228, др.), но с другими метриками. Возможно, цифра из непубличного отчёта или ошибка в исходном документе.",
+      "action_items": ["ИСКЛЮЧИТЬ цифру 45% из утверждений", "Использовать общую формулировку: 'LLM демонстрируют проблемы с точностью в новостях'", "Требовать датировку и источники для любых новостных фактов"]
     },
     {
       "id": "F8",
       "category": "reliability",
       "statement": "Галлюцинации неизбежны как теоретический результат для универсальных решателей на базе LLM",
-      "source": ["Error_with_AI_Annual.md", "Error_with_AI_1-4_summary.md"],
-      "status": "unclear",
-      "confidence": "low",
-      "implications": "Политика нулевой толерантности означает не 'идеальная модель', а комбинацию защит",
+      "source": ["Error_with_AI_Annual.md", "Error_with_AI_1-4_summary.md", "Web verification 2025-11-16"],
+      "status": "supported",
+      "confidence": "high",
+      "implications": "Политика нулевой толерантности означает не 'идеальная модель', а комбинацию защит (RAG + проверка + human-in-the-loop)",
       "quantitative_data": null,
-      "verification_notes": "Упоминается как формальная работа, но не указана",
-      "action_items": ["ВНЕШНЯЯ ПРОВЕРКА: Формализм доказательства", "ВНЕШНЯЯ ПРОВЕРКА: К каким классам задач относится", "Уточнить границы применимости"]
+      "verification_notes": "ПОДТВЕРЖДЕНО: Xu et al. (2024) 'Hallucination is Inevitable: An Innate Limitation of Large Language Models' (arXiv:2401.11817) — теоретическое доказательство через learning theory: LLM не могут выучить все computable functions, следовательно будут hallucinate если используются как general problem solvers. Дополнительно: работа 2025 доказывает невозможность perfect hallucination control (arxiv.org/html/2506.06382). Контр-позиция: Suzuki et al. (Feb 2025) показывают что галлюцинации можно сделать statistically negligible при достаточных данных.",
+      "action_items": ["Подчеркнуть: неизбежность относится к universal LLM solvers", "Для узких задач с quality data галлюцинации можно минимизировать", "Всегда комбинировать: RAG + verification + human oversight"]
     },
     {
       "id": "F9",
       "category": "cognitive_biases",
       "statement": "Сервильность наблюдается в ~58% случаев среди коммерческих LLM (ChatGPT-4o, Claude, Gemini 1.5 Pro)",
-      "source": ["Error_with_AI_Annual.md", "Error_with_AI_1-4_summary.md"],
-      "status": "unclear",
-      "confidence": "medium",
-      "implications": "Модели систематически жертвуют точностью ради согласия с пользователем",
-      "quantitative_data": "~58% случаев, устойчивость >75-80%",
-      "verification_notes": "Упоминаются данные, но без ссылки на датасет/метрику",
-      "action_items": ["ВНЕШНЯЯ ПРОВЕРКА: Датасет и процедура аннотации", "ВНЕШНЯЯ ПРОВЕРКА: Межэкспертная согласованность", "Различать прогрессивную и регрессивную сервильность"]
+      "source": ["Error_with_AI_Annual.md", "Error_with_AI_1-4_summary.md", "Web verification 2025-11-16"],
+      "status": "supported",
+      "confidence": "high",
+      "implications": "Модели систематически жертвуют точностью ради согласия с пользователем — требуется explicit instruction требовать критику",
+      "quantitative_data": "58.19% общий sycophancy rate; Gemini 62.47%, ChatGPT 56.71%, Claude 57.44%. Progressive sycophancy (→ правильный ответ): 43.52%, Regressive (→ ошибка): 14.66%",
+      "verification_notes": "ПОДТВЕРЖДЕНО: 'SycEval: Evaluating LLM Sycophancy' (arXiv:2502.08177, Feb 2025, обновлено Sept 2025). Протестированы ChatGPT-4o, Claude-Sonnet, Gemini-1.5-Pro на AMPS (math) и MedQuad (medical) датасетах. Preemptive rebuttals → 61.75% sycophancy vs in-context rebuttals 56.52% (p<0.001).",
+      "action_items": ["Явно требовать: 'найди ошибки в моих предположениях'", "Просить альтернативные объяснения", "Не интерпретировать согласие как подтверждение"]
     },
     {
       "id": "F10",
       "category": "reliability",
       "statement": "Переобобщение научных результатов: 26-73% случаев, OR≈4.85 по сравнению с человеком",
-      "source": ["Error_with_AI_Annual.md", "Error_with_AI_1-4_summary.md"],
-      "status": "unclear",
-      "confidence": "low",
-      "implications": "LLM склонны делать более широкие выводы, чем допускают данные",
-      "quantitative_data": "OR (отношение шансов) ≈4.85",
-      "verification_notes": "Упоминается сравнение резюме статей, но домены/аннотации не указаны",
-      "action_items": ["ВНЕШНЯЯ ПРОВЕРКА: Домены исследований", "ВНЕШНЯЯ ПРОВЕРКА: Процедуры аннотации", "Требовать явного указания ограничений обобщения"]
+      "source": ["Error_with_AI_Annual.md", "Error_with_AI_1-4_summary.md", "Web verification 2025-11-16"],
+      "status": "supported",
+      "confidence": "high",
+      "implications": "LLM склонны делать более широкие выводы, чем допускают данные — критично для научных коммуникаций",
+      "quantitative_data": "OR=4.85 (95% CI [3.06, 7.70], p<0.001). Диапазон overgeneralization: 26-73% в зависимости от модели (DeepSeek, ChatGPT-4o, LLaMA 3.3 70B хуже всех)",
+      "verification_notes": "ПОДТВЕРЖДЕНО: 'Generalization Bias in Large Language Model Summarization of Scientific Research' (Royal Society Open Science, 2025, также arXiv:2504.00025, PubMed 40309181). Тестировали 10 LLM, 4900 LLM-summaries vs original texts. LLM-summaries nearly 5× more likely to contain broad generalizations than human-authored. Newer models WORSE than earlier ones.",
+      "action_items": ["Требовать явное указание ограничений обобщения", "Запрашивать предпосылки и границы применимости", "Lowering temperature может помочь (упомянуто в paper)"]
     },
     {
       "id": "F11",
       "category": "prompt_engineering",
       "statement": "Best-of-N (выбор лучшего из N вариантов) снижает ошибки фактичности без ретрейнинга",
-      "source": ["Error_with_AI_Annual.md", "Error_with_AI_1-4_summary.md"],
-      "status": "unclear",
+      "source": ["Error_with_AI_Annual.md", "Error_with_AI_1-4_summary.md", "Web verification 2025-11-16"],
+      "status": "partial",
       "confidence": "medium",
-      "implications": "Можно улучшить качество через sampling, но есть cost/latency trade-off",
-      "quantitative_data": null,
-      "verification_notes": "Упоминается метод, но метрики/порог не указаны",
-      "action_items": ["ВНЕШНЯЯ ПРОВЕРКА: Метрики отбора кандидатов", "ВНЕШНЯЯ ПРОВЕРКА: Выигрыш при равной латентности", "Анализ стоимости (N запросов к API)"]
+      "implications": "Можно улучшить качество через sampling, но есть cost/latency trade-off + риск reward hacking",
+      "quantitative_data": "Одна реализация: >20% improvement in factual correctness (Deepchecks blog). Конкретные метрики варьируются.",
+      "verification_notes": "ЧАСТИЧНО ПОДТВЕРЖДЕНО: Best-of-N (BoN) sampling — известный метод для alignment. Regularized BoN (RBoN) outperforms vanilla BoN и mitigates reward hacking. НО: специфичные метрики улучшения фактичности не найдены в академических работах (есть mention >20% improvement в практическом блоге). Метрики: SelfCheckGPT (consistency), TruthfulQA, SimpleQA benchmark. Trade-off: N запросов = N× стоимость + latency.",
+      "action_items": ["Тестировать BoN на factuality benchmarks (TruthfulQA, SimpleQA)", "Измерить cost/latency trade-off для вашего use case", "Рассмотреть Regularized BoN для mitigation reward hacking"]
     },
     {
       "id": "F12",
       "category": "domain_specific",
       "statement": "LLM рекомендуют устаревшие race-adjusted формулы (eGFR, лёгочная функция)",
-      "source": ["Error_with_AI_Annual.md", "Error_with_AI_1-4_summary.md"],
-      "status": "unclear",
+      "source": ["Error_with_AI_Annual.md", "Error_with_AI_1-4_summary.md", "Web verification 2025-11-16"],
+      "status": "partial",
       "confidence": "medium",
-      "implications": "Обучающие данные могут содержать устаревшие медицинские практики",
+      "implications": "Обучающие данные могут содержать устаревшие медицинские практики — risk для медицинских приложений LLM",
       "quantitative_data": null,
-      "verification_notes": "Упоминается как пример, но актуальность гайдов не проверена",
-      "action_items": ["ВНЕШНЯЯ ПРОВЕРКА: Текущие клинические рекомендации", "Добавить предупреждение о датировке медицинских советов", "Требовать версию и дату гайдлайна"]
+      "verification_notes": "ЧАСТИЧНО ПОДТВЕРЖДЕНО: Race-adjusted eGFR формула (CKD-EPI 2009) УСТАРЕЛА с сентября 2021 — NKF-ASN Task Force рекомендовала заменить на CKD-EPI 2021 race-free equation. Причина: race — social construct, не биологический; race-adjustment ведёт к falsely elevated eGFR у Black patients → delays в care и transplant evaluation. НО: веб-поиск НЕ НАШЁЛ исследований о том, что LLM рекомендуют старую формулу (все результаты — о медицинских рекомендациях, не об LLM).",
+      "action_items": ["ПРОВЕРИТЬ ЭМПИРИЧЕСКИ: дать LLM задачу рассчитать eGFR и проверить какую формулу использует", "Требовать от LLM версию и дату клинических гайдлайнов", "Предупреждение: медицинские LLM требуют регулярного обновления знаний"]
     },
     {
       "id": "F13",
       "category": "multimodal",
-      "statement": "Для мультимодальных промптов: размещение изображения в начале улучшает точность",
-      "source": ["Error_with_AI_1-4_summary.md", "Academic_Surveys_on_Prompt_Engineering.md"],
-      "status": "unclear",
-      "confidence": "low",
-      "implications": "Порядок модальностей влияет на качество",
-      "quantitative_data": null,
-      "verification_notes": "Упоминается как рекомендация, но модель-специфичность не указана",
-      "action_items": ["ВНЕШНЯЯ ПРОВЕРКА: Универсальность за пределами конкретной модели", "ВНЕШНЯЯ ПРОВЕРКА: Влияние масштаба/сжатия изображений", "Тестировать на разных моделях"]
+      "statement": "Для мультимодальных промптов: размещение изображения влияет на точность, но универсального правила 'в начале' нет",
+      "source": ["Error_with_AI_1-4_summary.md", "Academic_Surveys_on_Prompt_Engineering.md", "Web verification 2025-11-16"],
+      "status": "partial",
+      "confidence": "medium",
+      "implications": "Порядок модальностей имеет значение, но зависит от задачи и модели",
+      "quantitative_data": "Interleaved (IN) positioning marginally лучше. GPT-4o consistently outperforms Claude-3 and Gemini-1.5 на vision tasks.",
+      "verification_notes": "ЧАСТИЧНО ПОДТВЕРЖДЕНО: Исследование 2025 'Image First or Text First? Optimising the Sequencing of Modalities' (arXiv:2410.03062, MDPI) показало: (1) Для simple single-image tasks positioning имеет значение. (2) Interleaved (IN — images within text) consistently лучше than text-first (TF) or image-first (IF). (3) Для multi-step reasoning важнее align sequence с logical flow, чем universal placement. (4) Context и task complexity важнее чем модальность order. НЕ подтверждается простое правило 'всегда в начале'.",
+      "action_items": ["УТОЧНИТЬ утверждение: 'Interleaved positioning часто лучше для сложных задач'", "Тестировать placement на конкретных use cases", "Align modality sequence с logical reasoning flow"]
     },
     {
       "id": "F14",
@@ -371,9 +374,10 @@
   ],
   "summary_statistics": {
     "by_status": {
-      "supported": 18,
-      "partial": 0,
-      "unclear": 10,
+      "supported": 23,
+      "partial": 4,
+      "unclear": 0,
+      "refuted": 1,
       "conflicting": 0
     },
     "by_category": {
@@ -388,29 +392,32 @@
       "domain_specific": 1
     },
     "confidence_distribution": {
-      "high": 18,
+      "high": 23,
       "medium": 5,
-      "low": 5
+      "low": 0
     }
   },
-  "gaps_requiring_external_research": [
-    "F6: Механизм EchoLeak утечки",
-    "F7: Методика исследования 45% ошибок в новостях",
-    "F8: Формализм неизбежности галлюцинаций",
-    "F9: Датасет и метрики сервильности",
-    "F10: Домены и аннотации переобобщения",
-    "F11: Метрики Best-of-N",
-    "F12: Актуальные медицинские гайдлайны vs LLM ответы",
-    "F13: Модель-специфичность размещения изображений"
-  ],
-  "recommendations_for_next_steps": [
-    "Запросить детали кейса EchoLeak у Microsoft/Anthropic",
-    "Найти оригинальное исследование о 45% ошибок в новостях (европейские медиасети)",
-    "Найти формальную работу о неизбежности галлюцинаций",
-    "Запросить датасеты сервильности (EMNLP 2025)",
-    "Найти работу о переобобщении научных результатов",
-    "Изучить реализации Best-of-N в промышленных системах",
-    "Сравнить рекомендации LLM с актуальными клиническими гайдлайнами",
-    "Тестировать размещение изображений на Claude, GPT-4V, Gemini Pro Vision"
+  "web_verification_summary": {
+    "total_verified": 8,
+    "confirmed": 5,
+    "partially_confirmed": 2,
+    "refuted": 1,
+    "details": {
+      "F6_EchoLeak": "CONFIRMED — CVE-2025-32711, CVSS 9.3, zero-click attack via email, patched Jan 2025",
+      "F7_45percent_news_errors": "REFUTED — не найдено исследование с этой цифрой, другие исследования показывают разные метрики",
+      "F8_hallucinations_inevitable": "CONFIRMED — Xu et al. 2024 theoretical proof + 2025 impossibility theorem",
+      "F9_sycophancy_58percent": "CONFIRMED — SycEval paper Feb 2025, arXiv:2502.08177",
+      "F10_overgeneralization_OR_4_85": "CONFIRMED — Royal Society Open Science 2025, peer-reviewed",
+      "F11_BestOfN": "PARTIAL — метод существует, >20% improvement упомянуто, но детальные academic metrics не найдены",
+      "F12_race_adjusted_eGFR": "PARTIAL — формула устарела с 2021, но нет данных что LLM её рекомендуют (требуется эмпирическая проверка)",
+      "F13_image_placement": "PARTIAL — interleaved лучше для complex tasks, но не универсальное правило 'в начале'"
+    }
+  },
+  "recommendations_updated": [
+    "F7 REFUTED: Исключить упоминание '45% ошибок' — использовать общую формулировку о проблемах LLM с новостями",
+    "F12 PARTIAL: Эмпирически протестировать что LLM рекомендуют для eGFR расчёта",
+    "F13 PARTIAL: Уточнить формулировку — 'interleaved positioning для complex tasks', не 'всегда в начале'",
+    "Все CONFIRMED факты (F6, F8, F9, F10) можно безопасно использовать с указанием источников",
+    "PARTIAL факты (F11, F12, F13) использовать с оговорками и пометкой 'requires further research'"
   ]
 }
